@@ -1,5 +1,6 @@
 package com.example.harishkaryanamerchants.screens.otpScreen
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -34,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.harishkaryanamerchants.R
 
+@SuppressLint("InvalidColorHexValue")
 @Composable
 fun OTPScreenUI() {
 
@@ -104,7 +106,7 @@ fun OTPScreenUI() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Row() {
+            Row {
                 Text(
                     text = "Already have an account?",
                     fontSize = 16.sp,
