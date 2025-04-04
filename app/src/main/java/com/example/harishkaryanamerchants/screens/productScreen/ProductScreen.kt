@@ -51,7 +51,7 @@ fun ProductDetailScreen() {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(lightPurpleColor)
+                    .zIndex(0f)
                     .padding(start = 8.dp, top = 28.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -66,7 +66,7 @@ fun ProductDetailScreen() {
                 IconButton(onClick = { isFavourite = !isFavourite }) {
                     Icon(
                         if (isFavourite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                        contentDescription = "Favorite",
+                        contentDescription = "Favourite",
                         tint = Color.Black
                     )
                 }
@@ -75,16 +75,15 @@ fun ProductDetailScreen() {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(lightPurpleColor)
                     .padding(top = 0.dp, bottom = 10.dp)
-                    .zIndex(0f) // Lower zIndex
-            ) {
+                    .zIndex(3f)
+            ){
                 Image(
                     painter = painterResource(id = R.drawable.productimage),
                     contentDescription = "Tata Sampann Unpolished Rajma",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(280.dp),
+                        .height(300.dp),
                     contentScale = ContentScale.Fit
                 )
             }
@@ -98,14 +97,8 @@ fun ProductDetailScreen() {
                 // Scrollable content section
                 Card(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .shadow(
-                            elevation = 40.dp,
-                            shape = RoundedCornerShape(topStart = 44.dp, topEnd = 24.dp),
-                            spotColor = Color.Black.copy(alpha = 0.2f),
-                            ambientColor = Color.Black.copy(alpha = 0.2f)
-                        ),
-                    shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+                        .fillMaxWidth(),
+                    shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = Color.White
                     )
@@ -363,7 +356,7 @@ fun QuantitySelector(
         Box(
             modifier = Modifier
                 .size(30.dp)
-                .border(1.dp, lightPurpleColor, RoundedCornerShape(8.dp))
+                .border(1.dp, darkPurpleColor, RoundedCornerShape(8.dp))
                 .clip(RoundedCornerShape(8.dp)),
             contentAlignment = Alignment.Center
         ) {
@@ -384,7 +377,7 @@ fun QuantitySelector(
         Box(
             modifier = Modifier
                 .size(40.dp)
-                .background(Color(0xFFF2F2F7), RoundedCornerShape(8.dp))
+                .background(color = lightPurpleColor, RoundedCornerShape(8.dp))
                 .clip(RoundedCornerShape(8.dp)),
             contentAlignment = Alignment.Center
         ) {

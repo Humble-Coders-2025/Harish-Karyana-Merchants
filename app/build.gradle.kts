@@ -58,6 +58,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation ("androidx.compose.material3:material3:1.3.1")
 
+    implementation ("androidx.compose.material:material-icons-extended:<latest_version>")   //Extended Icons
 
         implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2") // For ViewModel in Compose
         implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2") // For lifecycle-aware components

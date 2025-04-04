@@ -11,4 +11,4 @@ val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
 val lightPurpleColor = Color(0xFF580768).copy(alpha = 0.1f)
-val darkPurpleColor = Color(0xFF580768).copy(alpha = 0.8f)
+val darkPurpleColor = Color(0xFF580768).copy(alpha = 0.75f)
