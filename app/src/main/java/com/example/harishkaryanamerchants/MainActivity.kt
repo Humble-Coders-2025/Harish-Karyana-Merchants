@@ -4,6 +4,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import com.example.harishkaryanamerchants.screens.categoryscreen.GroceryScreen
+import com.example.harishkaryanamerchants.screens.greetingScreen.GreetingScreen
+import com.example.harishkaryanamerchants.screens.homeScreen.HomeScreen
+import com.example.harishkaryanamerchants.screens.loginOrResisterScreen.LoginScreen
 import com.example.harishkaryanamerchants.screens.otpScreen.OTPScreenUI
 import com.example.harishkaryanamerchants.screens.productScreen.ProductDetailScreen
 import com.example.harishkaryanamerchants.screens.registerScreen.RegisterScreenUI
@@ -15,7 +19,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             HarishKaryanaMerchantsTheme {
-                OTPScreenUI()
+                GroceryScreen()
             }
         }
     }

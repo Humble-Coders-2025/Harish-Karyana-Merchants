@@ -47,12 +47,12 @@ fun ProductDetailScreen() {
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            // Top icons (fixed at the top)
+            // Top navigation bar
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .zIndex(0f)
-                    .padding(start = 8.dp, top = 28.dp),
+                    .padding(top = 28.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 IconButton(onClick = { /* Handle back navigation */ }) {
@@ -72,11 +72,12 @@ fun ProductDetailScreen() {
                 }
             }
 
+            // Product image
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 0.dp, bottom = 10.dp)
-                    .zIndex(3f)
+                    .zIndex(3f),
+                contentAlignment = Alignment.Center
             ){
                 Image(
                     painter = painterResource(id = R.drawable.productimage),
@@ -88,31 +89,27 @@ fun ProductDetailScreen() {
                 )
             }
 
-            // Using Box for the scrollable content with the Card
+            // Content card
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
             ) {
-                // Scrollable content section
                 Card(
-                    modifier = Modifier
-                        .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = Color.White
                     )
                 ) {
-                    // Use LazyColumn inside the Card for scrollable content
                     LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
+                        modifier = Modifier.fillMaxSize()
                     ) {
                         item {
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 16.dp)
+                                    .padding(16.dp)
                             ) {
                                 // Category
                                 Box(
@@ -191,8 +188,7 @@ fun ProductDetailScreen() {
                                 // Related Products Row
                                 LazyRow (
                                     modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    contentPadding = PaddingValues(vertical = 8.dp)
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
                                     item {
                                         RelatedProductItem(
@@ -218,7 +214,7 @@ fun ProductDetailScreen() {
                 }
             }
 
-            // Add to Cart Section - Fixed at bottom
+            // Add to Cart Section
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -232,23 +228,22 @@ fun ProductDetailScreen() {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    // Quantity Control
+                    // Quantity Selector
                     QuantitySelector(
                         quantity = quantity,
-                        onQuantityChanged = { quantity = it },
-                        modifier = Modifier.padding(vertical = 8.dp)
+                        onQuantityChanged = { quantity = it }
                     )
-
-                    Spacer(modifier = Modifier.width(16.dp))
 
                     // Add to Cart Button
                     Button(
                         onClick = { /* Handle add to cart */ },
                         modifier = Modifier
-                            .weight(0.5f)
-                            .height(48.dp),
+                            .weight(1f)
+                            .height(48.dp)
+                            .padding(start = 16.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = darkPurpleColor
                         ),
@@ -267,7 +262,6 @@ fun ProductDetailScreen() {
     }
 }
 
-// Keep the rest of the functions unchanged
 @Composable
 fun BulletPoint(text: String) {
     Row(
@@ -299,8 +293,7 @@ fun RelatedProductItem(
         modifier = modifier
             .clip(RoundedCornerShape(15.dp))
             .border(1.dp, Color.LightGray, RoundedCornerShape(15.dp))
-            .width(200.dp)
-            .padding(end = 0.dp),
+            .width(200.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Product Image
@@ -309,16 +302,14 @@ fun RelatedProductItem(
             contentDescription = name,
             modifier = Modifier
                 .size(80.dp)
-                .padding(end = 8.dp)
                 .background(backgroundColor)
                 .clip(RoundedCornerShape(8.dp)),
             contentScale = ContentScale.Crop
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
-
         // Product Info
         Column(
+            modifier = Modifier.padding(start = 8.dp),
             horizontalAlignment = Alignment.Start,
         ) {
             Text(
@@ -346,7 +337,6 @@ fun QuantitySelector(
     onQuantityChanged: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(8.dp),

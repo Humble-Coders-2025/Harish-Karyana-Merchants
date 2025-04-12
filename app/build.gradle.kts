@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.compose);
 }
 
 android {
@@ -62,5 +62,15 @@ dependencies {
 
         implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2") // For ViewModel in Compose
         implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2") // For lifecycle-aware components
+
+    implementation(libs.accompanist.systemuicontroller);
+
+    // splash screen
+    implementation(libs.androidx.core.splashscreen)
+
+    // Dependencies for synchronized scrolling(third party)
+    implementation(libs.accompanist.pager)
+    implementation(libs.accompanist.pager.indicators)
+
 
 }
