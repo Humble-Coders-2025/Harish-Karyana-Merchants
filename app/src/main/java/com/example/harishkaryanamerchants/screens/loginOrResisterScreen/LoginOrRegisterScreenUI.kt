@@ -30,8 +30,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.harishkaryanamerchants.R
+
 @Composable
-fun LoginScreen() {
+fun LoginScreen(
+    onLoginClick: () -> Unit = {},
+    onRegisterClick: () -> Unit = {}
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -127,7 +131,7 @@ fun LoginScreen() {
             ) {
                 // Login button
                 Button(
-                    onClick = { /* Handle login click */ },
+                    onClick = onLoginClick,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp)
@@ -148,7 +152,7 @@ fun LoginScreen() {
 
                 // Register button
                 OutlinedButton(
-                    onClick = { /* Handle register click */ },
+                    onClick = onRegisterClick,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp)

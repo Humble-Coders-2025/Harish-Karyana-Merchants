@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "515697602327",
+    "project_id": "supermarket-40f2d",
+    "storage_bucket": "supermarket-40f2d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:515697602327:android:34765e6cb650cefca09152",
+        "android_client_info": {
+          "package_name": "com.example.harishkaryanamerchants"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBQmXV9cG6DD05OWifql-edEWeKAy_H7jI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

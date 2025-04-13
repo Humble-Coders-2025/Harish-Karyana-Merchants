@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose);
+    id ("kotlin-parcelize")
+    id ("com.google.gms.google-services") version "4.4.2"
 }
 
 android {
@@ -70,7 +72,24 @@ dependencies {
 
     // Dependencies for synchronized scrolling(third party)
     implementation(libs.accompanist.pager)
-    implementation(libs.accompanist.pager.indicators)
+    implementation(libs.accompanist.pager.indicators);
 
+    // Navigation for Jetpack Compose
+    implementation("androidx.navigation:navigation-compose:2.7.7") // Latest as of April 2025
+
+    // Firebase dependencies
+    implementation(platform("com.google.firebase:firebase-bom:33.12.0"))
+    implementation ("com.google.firebase:firebase-auth")
+    implementation ("com.google.firebase:firebase-firestore")
+
+// Ktor dependencies for API calls
+    implementation ("io.ktor:ktor-client-core:2.3.7")
+    implementation ("io.ktor:ktor-client-android:2.3.7")
+    implementation ("io.ktor:ktor-client-content-negotiation:2.3.7")
+    implementation ("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
+    implementation ("io.ktor:ktor-client-logging:2.3.7")
+
+// Kotlinx serialization
+    implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
 }
