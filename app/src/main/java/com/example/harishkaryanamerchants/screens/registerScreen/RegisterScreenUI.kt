@@ -1,5 +1,6 @@
 package com.example.harishkaryanamerchants.screens.registerScreen
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -194,7 +195,7 @@ fun RegisterScreenUI(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                // Button
+
                 Button(
                     onClick = {
                         // Validate input
@@ -214,16 +215,23 @@ fun RegisterScreenUI(
                         }
 
                         if (isValid) {
-                            // Split full name into first and last name
-                            val nameParts = fullName.trim().split("\\s+".toRegex(), 2)
-                            val firstName = nameParts[0]
-                            val lastName = if (nameParts.size > 1) nameParts[1] else ""
+                            try {
+                                // Split full name into first and last name
+                                val nameParts = fullName.trim().split("\\s+".toRegex(), 2)
+                                val firstName = nameParts[0]
+                                val lastName = if (nameParts.size > 1) nameParts[1] else ""
 
-                            // Format phone number to E.164 before sending
-                            val e164PhoneNumber = formatToE164(phoneNumber)
+                                // Format phone number to E.164 before sending
+                                val e164PhoneNumber = formatToE164(phoneNumber)
+                                Log.d("RegisterScreen", "Sending formatted phone number: $e164PhoneNumber")
 
-                            // Navigate to OTP screen
-                            onSendOtpClick(firstName, lastName, e164PhoneNumber)
+                                // Navigate to OTP screen
+                                onSendOtpClick(firstName, lastName, e164PhoneNumber)
+                            } catch (e: Exception) {
+                                // Handle formatting errors
+                                Log.e("RegisterScreen", "Error formatting phone number: ${e.message}")
+                                phoneNumberError = e.message ?: "Invalid phone number format"
+                            }
                         }
                     },
                     modifier = Modifier
@@ -268,17 +276,22 @@ fun RegisterScreenUI(
     }
 }
 
-// Helper function to format phone number to E.164
+// Updated formatToE164 function with better validation for RegisterScreenUI.kt
 private fun formatToE164(phoneNumber: String): String {
     // Remove all non-digit characters
     val digitsOnly = phoneNumber.replace(Regex("[^0-9]"), "")
 
-    // Ensure we're dealing with an Indian number (10 digits)
-    return if (digitsOnly.length == 10) {
-        "+91$digitsOnly"  // Add Indian country code with plus
+    // Validate the number
+    if (digitsOnly.length == 10) {
+        return "+91$digitsOnly"  // Standard 10-digit Indian mobile number
     } else if (digitsOnly.startsWith("91") && digitsOnly.length == 12) {
-        "+$digitsOnly"  // Just add plus if it already has country code
+        return "+$digitsOnly"  // Already has country code but missing +
+    } else if (digitsOnly.startsWith("0") && digitsOnly.length == 11) {
+        // Handle case with leading 0 (common user error)
+        return "+91${digitsOnly.substring(1)}"
     } else {
-        "+91$digitsOnly"  // Default to Indian code (might not be correct)
+        // Don't add country code if format is unknown - this will cause Firebase to show
+        // a proper error rather than trying to send to an invalid number
+        return "+91$digitsOnly"
     }
 }

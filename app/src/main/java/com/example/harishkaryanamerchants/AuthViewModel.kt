@@ -46,10 +46,17 @@ class AuthViewModel : ViewModel() {
 
         _otpState.value = OtpState.Loading
 
-        Log.d("AuthViewModel", "Initiating phone verification for: $phoneNumber")
+        Log.d("AuthViewModel", "Initiating phone verification for: $phoneNumber (firstName: $firstName, lastName: $lastName)")
+
+        // Validate the phone number before proceeding
+        if (phoneNumber.isBlank()) {
+            Log.e("AuthViewModel", "Phone number is blank")
+            _otpState.value = OtpState.Error("Phone number cannot be empty")
+            return
+        }
 
         viewModelScope.launch {
-            firebaseAuthService.sendOtp(userPhoneNumber, activity).collectLatest { result ->
+            firebaseAuthService.sendOtp(phoneNumber, activity).collectLatest { result ->
                 when (result) {
                     is OtpResult.CodeSent -> {
                         Log.d("AuthViewModel", "OTP sent successfully")

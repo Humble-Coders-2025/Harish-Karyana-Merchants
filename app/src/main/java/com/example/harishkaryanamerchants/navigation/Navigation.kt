@@ -1,5 +1,6 @@
 package com.example.harishkaryanamerchants.navigation
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -47,16 +48,19 @@ fun AppNavigation(navController: NavHostController) {
             )
         }
 
+        // In the AppNavigation composable function, modify the RegisterScreen composable:
         composable(AppDestinations.REGISTER_SCREEN) {
             RegisterScreenUI(
                 onBackClick = {
                     navController.popBackStack()
                 },
                 onSendOtpClick = { firstName, lastName, phoneNumber ->
-                    // Using Bundle for safety instead of URL parameters
-                    navController.currentBackStackEntry?.arguments?.putString("firstName", firstName)
-                    navController.currentBackStackEntry?.arguments?.putString("lastName", lastName)
-                    navController.currentBackStackEntry?.arguments?.putString("phoneNumber", phoneNumber)
+                    Log.d("Navigation", "Sending OTP with phone: $phoneNumber")
+
+                    // Use SavedStateHandle instead of arguments
+                    navController.currentBackStackEntry?.savedStateHandle?.set("firstName", firstName)
+                    navController.currentBackStackEntry?.savedStateHandle?.set("lastName", lastName)
+                    navController.currentBackStackEntry?.savedStateHandle?.set("phoneNumber", phoneNumber)
 
                     // Navigate to OTP screen
                     navController.navigate(AppDestinations.OTP_SCREEN)
@@ -67,11 +71,14 @@ fun AppNavigation(navController: NavHostController) {
             )
         }
 
+// Then modify the OTP_SCREEN composable:
         composable(AppDestinations.OTP_SCREEN) {
-            // Get the user data from the previous screen's arguments
-            val firstName = navController.previousBackStackEntry?.arguments?.getString("firstName") ?: ""
-            val lastName = navController.previousBackStackEntry?.arguments?.getString("lastName") ?: ""
-            val phoneNumber = navController.previousBackStackEntry?.arguments?.getString("phoneNumber") ?: ""
+            // Get the user data from the SavedStateHandle
+            val firstName = navController.previousBackStackEntry?.savedStateHandle?.get<String>("firstName") ?: ""
+            val lastName = navController.previousBackStackEntry?.savedStateHandle?.get<String>("lastName") ?: ""
+            val phoneNumber = navController.previousBackStackEntry?.savedStateHandle?.get<String>("phoneNumber") ?: ""
+
+            Log.d("Navigation", "OTP Screen received phone: $phoneNumber")
 
             val userData = UserData(firstName, lastName, phoneNumber)
 

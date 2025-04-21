@@ -22,6 +22,7 @@ class FirebaseAuthService {
     private var storedVerificationId: String? = null
 
     // Function to send OTP to phone number
+// Also update the sendOtp function to add more logging
     fun sendOtp(
         phoneNumber: String,
         activity: Activity
@@ -30,12 +31,24 @@ class FirebaseAuthService {
             // Ensure Firebase is initialized
             if (FirebaseApp.getApps(activity).isEmpty()) {
                 FirebaseApp.initializeApp(activity)
+                Log.d("FirebaseAuth", "Firebase initialized in sendOtp")
             }
 
+            Log.d("FirebaseAuth", "Attempting to send OTP to number: $phoneNumber")
+
             // Format the phone number to E.164 format
-            val formattedNumber = formatPhoneNumber(phoneNumber)
+            val formattedNumber = try {
+                formatPhoneNumber(phoneNumber)
+            } catch (e: IllegalArgumentException) {
+                Log.e("FirebaseAuth", "Phone formatting error: ${e.message}")
+                trySend(OtpResult.VerificationFailed(e.message ?: "Invalid phone number format"))
+                close()
+                return@callbackFlow
+            }
+
             Log.d("FirebaseAuth", "Sending OTP to: $formattedNumber")
 
+            // Rest of the function remains the same
             val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
                 override fun onVerificationCompleted(credential: PhoneAuthCredential) {
                     // This will be invoked if the phone number is instantly verified
@@ -45,9 +58,17 @@ class FirebaseAuthService {
                 }
 
                 override fun onVerificationFailed(exception: FirebaseException) {
-                    // Handle verification failures
+                    // Handle verification failures - THIS IS WHERE THE ERROR IS HAPPENING
                     Log.e("FirebaseAuth", "Verification failed: ${exception.message}", exception)
-                    trySend(OtpResult.VerificationFailed(exception.message ?: "Verification failed"))
+
+                    // Instead of throwing NotImplementedError, properly handle the error
+                    val errorMessage = when {
+                        exception.message?.contains("BILLING_NOT_ENABLED") == true ->
+                            "Firebase Phone Auth requires billing to be enabled in your Firebase project. Please check your Firebase console."
+                        else -> exception.message ?: "Verification failed"
+                    }
+
+                    trySend(OtpResult.VerificationFailed(errorMessage))
                 }
 
                 override fun onCodeSent(
@@ -117,9 +138,19 @@ class FirebaseAuthService {
     }
 
     // Helper function to ensure E.164 format for phone numbers
+    // Updated formatPhoneNumber function for FirebaseAuthService.kt
+    // Update the formatPhoneNumber function in FirebaseAuthService.kt
     private fun formatPhoneNumber(phoneNumber: String): String {
+        // Check for empty phone number first
+        if (phoneNumber.isBlank()) {
+            Log.e("FirebaseAuth", "Received blank phone number for formatting")
+            throw IllegalArgumentException("Phone number cannot be empty")
+        }
+
         // Remove all non-digit characters except the plus sign
         val cleanedNumber = phoneNumber.replace(Regex("[^0-9+]"), "")
+
+        Log.d("FirebaseAuth", "Formatting phone number. Raw: $phoneNumber, Cleaned: $cleanedNumber")
 
         // If it already starts with +, return it (assuming it's already in E.164 format)
         if (cleanedNumber.startsWith("+")) {
@@ -128,14 +159,16 @@ class FirebaseAuthService {
 
         // Remove any leading zeros
         val digitsOnly = cleanedNumber.replace(Regex("^0+"), "")
+        Log.d("FirebaseAuth", "Digits only (no leading zeros): $digitsOnly")
 
         // Ensure we're dealing with an Indian number (10 digits)
-        return if (digitsOnly.length == 10) {
-            "+91$digitsOnly"  // Add Indian country code with plus
+        if (digitsOnly.length == 10) {
+            return "+91$digitsOnly"  // Add Indian country code with plus
         } else if (digitsOnly.startsWith("91") && digitsOnly.length == 12) {
-            "+$digitsOnly"  // Just add plus if it already has country code
+            return "+$digitsOnly"  // Just add plus if it already has country code
         } else {
-            "+91$digitsOnly"  // Default to Indian code (might not be correct)
+            Log.e("FirebaseAuth", "Invalid phone number format: $digitsOnly (length: ${digitsOnly.length})")
+            throw IllegalArgumentException("Please enter a valid 10-digit phone number")
         }
     }
 

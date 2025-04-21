@@ -44,6 +44,7 @@ import com.google.firebase.FirebaseApp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import android.util.Log
+import androidx.compose.ui.platform.LocalClipboardManager
 
 @SuppressLint("InvalidColorHexValue")
 @Composable
@@ -142,13 +143,25 @@ fun OTPScreenUI(
     // Effect to initiate OTP verification when screen loads
     LaunchedEffect(userData) {
         userData?.let {
+            // Add validation check for the phone number
+            if (it.phoneNumber.isBlank()) {
+                Log.e("OTPScreen", "Received blank phone number")
+                errorMessage = "Phone number is missing. Please go back and enter your phone number."
+                return@let
+            }
+
             Log.d("OTPScreen", "Initiating phone verification for: ${it.phoneNumber}")
+            Log.d("OTPScreen", "User data: firstName=${it.firstName}, lastName=${it.lastName}, phone=${it.phoneNumber}")
+
             viewModel.initiatePhoneVerification(
                 it.firstName,
                 it.lastName,
                 it.phoneNumber,
                 context as androidx.activity.ComponentActivity
             )
+        } ?: run {
+            Log.e("OTPScreen", "No user data received")
+            errorMessage = "No user data received. Please try again."
         }
     }
 
@@ -337,8 +350,8 @@ fun OTPScreenUI(
 fun OTPInputScreen(
     onOtpComplete: (String) -> Unit = {}
 ) {
-    val otpLength = 4 // Number of OTP input boxes
-    val otpValues = remember { mutableStateListOf("", "", "", "") }
+    val otpLength = 6 // Changed from 4 to 6 digits
+    val otpValues = remember { mutableStateListOf("", "", "", "", "", "") } // Added 2 more empty strings
 
     // Create focus requesters for each OTP field
     val focusRequesters = remember {
@@ -347,6 +360,9 @@ fun OTPInputScreen(
 
     // Get the focus manager
     val focusManager = LocalFocusManager.current
+
+    // Get clipboard manager for paste functionality
+    val clipboardManager = LocalClipboardManager.current
 
     // Check if OTP is complete
     val isOtpComplete = remember(otpValues) {
@@ -378,8 +394,13 @@ fun OTPInputScreen(
             OTPInputField(
                 value = otpValues[index],
                 onValueChange = { newValue ->
-                    // Check if the input is a single digit
-                    if (newValue.isEmpty() || newValue.matches(Regex("^\\d+$"))) {
+                    // Check if it's a paste action (multiple digits)
+                    if (newValue.length > 1) {
+                        // This might be a paste action
+                        handlePastedText(newValue, otpValues, otpLength, focusRequesters)
+                    }
+                    // Normal single digit input
+                    else if (newValue.isEmpty() || newValue.matches(Regex("^\\d+$"))) {
                         if (newValue.length <= 1) {
                             // Update the current field
                             otpValues[index] = newValue
@@ -396,12 +417,42 @@ fun OTPInputScreen(
                 index = index,
                 focusRequesters = focusRequesters,
                 otpLength = otpLength,
-                otpValues = otpValues
+                otpValues = otpValues,
+                onPaste = { pastedText ->
+                    handlePastedText(pastedText, otpValues, otpLength, focusRequesters)
+                }
             )
 
             if (index < otpLength - 1) {
-                Spacer(modifier = Modifier.width(16.dp))
+                Spacer(modifier = Modifier.width(8.dp)) // Reduced space to fit all 6 digits
             }
+        }
+    }
+}
+
+private fun handlePastedText(
+    pastedText: String,
+    otpValues: MutableList<String>,
+    otpLength: Int,
+    focusRequesters: List<FocusRequester>
+) {
+    // Extract only digits from the pasted text
+    val digitsOnly = pastedText.replace(Regex("[^0-9]"), "")
+
+    // If we have enough digits, fill the OTP fields
+    if (digitsOnly.isNotEmpty()) {
+        // Fill the OTP boxes with the pasted digits (up to otpLength)
+        for (i in 0 until minOf(digitsOnly.length, otpLength)) {
+            otpValues[i] = digitsOnly[i].toString()
+        }
+
+        // Focus on the next empty field or the last field if all are filled
+        val nextEmptyIndex = otpValues.indexOfFirst { it.isEmpty() }
+        if (nextEmptyIndex != -1) {
+            focusRequesters[nextEmptyIndex].requestFocus()
+        } else {
+            // All fields filled, focus on the last one
+            focusRequesters[otpLength - 1].requestFocus()
         }
     }
 }
@@ -414,20 +465,42 @@ fun OTPInputField(
     index: Int,
     focusRequesters: List<FocusRequester>,
     otpLength: Int,
-    otpValues: MutableList<String>
+    otpValues: MutableList<String>,
+    onPaste: (String) -> Unit
 ) {
-
     var isFocused by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
+    val context = LocalContext.current
+
+    // Add clipboard manager support
+    val clipboardManager = LocalClipboardManager.current
 
     BasicTextField(
         value = value,
-        onValueChange = onValueChange,
+        onValueChange = { newValue ->
+            if (newValue.length > 1) {
+                // Likely a paste operation
+                onPaste(newValue)
+            } else {
+                // Normal input handling
+                onValueChange(newValue)
+            }
+        },
         modifier = Modifier
-            .size(height = 60.dp, width = 50.dp)
+            .size(height = 60.dp, width = 45.dp) // Slightly narrower to fit 6 digits
             .focusRequester(focusRequester)
             .onFocusChanged {
                 isFocused = it.isFocused
+
+                // Try to get clipboard content when first field is focused
+                if (it.isFocused && index == 0) {
+                    clipboardManager.getText()?.let { clipboardText ->
+                        // Only process if it looks like an OTP (just digits)
+                        if (clipboardText.text.matches(Regex("^[0-9]{$otpLength}$"))) {
+                            onPaste(clipboardText.text)
+                        }
+                    }
+                }
             }
             .onKeyEvent{ keyEvent ->
                 if(keyEvent.key == Key.Backspace && value.isEmpty() && index > 0){
